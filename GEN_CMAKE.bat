@@ -17,7 +17,7 @@ goto BUILD
 :BUILD
 echo %RENDERER%
 cd "build"
-cmake ../ -G "Visual Studio 15 2017" -A x64 %RENDERER%
+cmake ../ -A x64 %RENDERER%
 
 pause
 exit /b 0

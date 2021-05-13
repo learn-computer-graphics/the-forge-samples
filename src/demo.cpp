@@ -1,35 +1,19 @@
-//-----------------------------------------------------------------------------
-// Copyright 2020 Tim Barnes
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//----------------------------------------------------------------------------
-
 #include "demo.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h> 
+#include <GLFW/glfw3native.h>
 #include <Renderer/IShaderReflection.h>
 #include <Renderer/IResourceLoader.h>
 #include <OS/Interfaces/ILog.h>
 #include <OS/Interfaces/IInput.h>
 
 //The-forge memory allocator
-extern bool MemAllocInit(const char* name);
+extern bool MemAllocInit(const char *name);
 extern void MemAllocExit();
 
 Demo::~Demo()
 {
-	
+
 	if (mRenderer != NULL)
 	{
 		waitQueueIdle(mGraphicsQueue);
@@ -53,8 +37,8 @@ Demo::~Demo()
 		{
 			removeFence(mRenderer, mRenderCompleteFences[i]);
 			removeSemaphore(mRenderer, mRenderCompleteSemaphores[i]);
-         removeCmd(mRenderer, mCmds[i]);
-         removeCmdPool(mRenderer, mCmdPools[i]);
+			removeCmd(mRenderer, mCmds[i]);
+			removeCmdPool(mRenderer, mCmdPools[i]);
 		}
 
 		removeSemaphore(mRenderer, mImageAcquiredSemaphore);
@@ -65,7 +49,7 @@ Demo::~Demo()
 	}
 
 	Log::Exit();
-   exitFileSystem();
+	exitFileSystem();
 	MemAllocExit();
 }
 
@@ -81,54 +65,54 @@ bool Demo::init(GLFWwindow *pWindow)
 		return false;
 	}
 
-   FileSystemInitDesc fsDesc = {};
-   fsDesc.pAppName = getName();
+	FileSystemInitDesc fsDesc = {};
+	fsDesc.pAppName = getName();
 
 	//init file system
-   if (!initFileSystem(&fsDesc))
+	if (!initFileSystem(&fsDesc))
 	{
 		printf("Failed to init file system\n");
 		return false;
 	}
 
-   //set root directory for the log, must set this before we initialize the log
-   fsSetPathForResourceDir(pSystemFileIO, RM_DEBUG, RD_LOG, "");
+	//set root directory for the log, must set this before we initialize the log
+	fsSetPathForResourceDir(pSystemFileIO, RM_DEBUG, RD_LOG, "");
 
 	//init the log
 	Log::Init(getName());
 
-   //work out which api we are using
-   RendererApi api;
+	//work out which api we are using
+	RendererApi api;
 #if defined(VULKAN)
-   api = RENDERER_API_VULKAN;
+	api = RENDERER_API_VULKAN;
 #elif defined(DIRECT3D12)
-   api = RENDERER_API_D3D12;
+	api = RENDERER_API_D3D12;
 #else
-   #error Trying to use a renderer API not supported by this demo
+#error Trying to use a renderer API not supported by this demo
 #endif
 
 	//set directories for the selected api
 	switch (api)
 	{
 	case RENDERER_API_D3D12:
-      fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_SOURCES, "shaders/d3d12/");
-      fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_BINARIES, "shaders/d3d12/binary/");
+		fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_SOURCES, "shaders/d3d12/");
+		fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_BINARIES, "shaders/d3d12/binary/");
 		break;
 	case RENDERER_API_VULKAN:
-      fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_SOURCES, "shaders/vulkan/");
-      fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_BINARIES, "shaders/vulkan/binary/");
+		fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_SOURCES, "shaders/vulkan/");
+		fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_SHADER_BINARIES, "shaders/vulkan/binary/");
 		break;
 	default:
-      LOGF(LogLevel::eERROR, "No support for this API");
+		LOGF(LogLevel::eERROR, "No support for this API");
 		return false;
 	}
 
 	//set texture dir
-   fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_TEXTURES, "textures/");
+	fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_TEXTURES, "textures/");
 	//set font dir
-   fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_FONTS, "fonts/");
+	fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_FONTS, "fonts/");
 	//set GPUCfg dir
-   fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_GPU_CONFIG, "gpucfg/");
+	fsSetPathForResourceDir(pSystemFileIO, RM_CONTENT, RD_GPU_CONFIG, "gpucfg/");
 
 	//get framebuffer size, it may be different from window size
 	glfwGetFramebufferSize(pWindow, &mFbWidth, &mFbHeight);
@@ -145,25 +129,24 @@ bool Demo::init(GLFWwindow *pWindow)
 	//create graphics queue
 	QueueDesc queueDesc = {};
 	queueDesc.mType = QUEUE_TYPE_GRAPHICS;
-	queueDesc.mFlag = QUEUE_FLAG_NONE;//use QUEUE_FLAG_INIT_MICROPROFILE to enable profiling;
+	queueDesc.mFlag = QUEUE_FLAG_NONE; //use QUEUE_FLAG_INIT_MICROPROFILE to enable profiling;
 	addQueue(mRenderer, &queueDesc, &mGraphicsQueue);
-
 
 	for (uint32_t i = 0; i < gImageCount; ++i)
 	{
-      //sync objects
+		//sync objects
 		addFence(mRenderer, &mRenderCompleteFences[i]);
 		addSemaphore(mRenderer, &mRenderCompleteSemaphores[i]);
 
-      //command pool for the graphics queue
-      CmdPoolDesc cmdPoolDesc = {};
-      cmdPoolDesc.pQueue = mGraphicsQueue;
-      addCmdPool(mRenderer, &cmdPoolDesc, &mCmdPools[i]);
+		//command pool for the graphics queue
+		CmdPoolDesc cmdPoolDesc = {};
+		cmdPoolDesc.pQueue = mGraphicsQueue;
+		addCmdPool(mRenderer, &cmdPoolDesc, &mCmdPools[i]);
 
-      //command buffer
-      CmdDesc cmdDesc = {};
-      cmdDesc.pPool = mCmdPools[i];
-      addCmd(mRenderer, &cmdDesc, &mCmds[i]);
+		//command buffer
+		CmdDesc cmdDesc = {};
+		cmdDesc.pPool = mCmdPools[i];
+		addCmd(mRenderer, &cmdDesc, &mCmds[i]);
 	}
 	addSemaphore(mRenderer, &mImageAcquiredSemaphore);
 
@@ -190,37 +173,37 @@ bool Demo::init(GLFWwindow *pWindow)
 	//vertex buffer
 	{
 		const eastl::vector<Vertex> vertices =
-		{
-			Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
-			Vertex(-1.0f,  1.0f, -1.0f, 0.0f, 0.0f),
-			Vertex(1.0f,  1.0f, -1.0f, 1.0f, 0.0f),
-			Vertex(1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
+			{
+				Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
+				Vertex(-1.0f, 1.0f, -1.0f, 0.0f, 0.0f),
+				Vertex(1.0f, 1.0f, -1.0f, 1.0f, 0.0f),
+				Vertex(1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
 
-			Vertex(-1.0f, -1.0f, 1.0f, 1.0f, 1.0f),
-			Vertex(1.0f, -1.0f, 1.0f, 0.0f, 1.0f),
-			Vertex(1.0f,  1.0f, 1.0f, 0.0f, 0.0f),
-			Vertex(-1.0f,  1.0f, 1.0f, 1.0f, 0.0f),
+				Vertex(-1.0f, -1.0f, 1.0f, 1.0f, 1.0f),
+				Vertex(1.0f, -1.0f, 1.0f, 0.0f, 1.0f),
+				Vertex(1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+				Vertex(-1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
 
-			Vertex(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f),
-			Vertex(-1.0f, 1.0f,  1.0f, 0.0f, 0.0f),
-			Vertex(1.0f, 1.0f,  1.0f, 1.0f, 0.0f),
-			Vertex(1.0f, 1.0f, -1.0f, 1.0f, 1.0f),
+				Vertex(-1.0f, 1.0f, -1.0f, 0.0f, 1.0f),
+				Vertex(-1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+				Vertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
+				Vertex(1.0f, 1.0f, -1.0f, 1.0f, 1.0f),
 
-			Vertex(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
-			Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
-			Vertex(1.0f, -1.0f,  1.0f, 0.0f, 0.0f),
-			Vertex(-1.0f, -1.0f,  1.0f, 1.0f, 0.0f),
+				Vertex(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
+				Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
+				Vertex(1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
+				Vertex(-1.0f, -1.0f, 1.0f, 1.0f, 0.0f),
 
-			Vertex(-1.0f, -1.0f,  1.0f, 0.0f, 1.0f),
-			Vertex(-1.0f,  1.0f,  1.0f, 0.0f, 0.0f),
-			Vertex(-1.0f,  1.0f, -1.0f, 1.0f, 0.0f),
-			Vertex(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
+				Vertex(-1.0f, -1.0f, 1.0f, 0.0f, 1.0f),
+				Vertex(-1.0f, 1.0f, 1.0f, 0.0f, 0.0f),
+				Vertex(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f),
+				Vertex(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f),
 
-			Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
-			Vertex(1.0f,  1.0f, -1.0f, 0.0f, 0.0f),
-			Vertex(1.0f,  1.0f,  1.0f, 1.0f, 0.0f),
-			Vertex(1.0f, -1.0f,  1.0f, 1.0f, 1.0f),
-		};
+				Vertex(1.0f, -1.0f, -1.0f, 0.0f, 1.0f),
+				Vertex(1.0f, 1.0f, -1.0f, 0.0f, 0.0f),
+				Vertex(1.0f, 1.0f, 1.0f, 1.0f, 0.0f),
+				Vertex(1.0f, -1.0f, 1.0f, 1.0f, 1.0f),
+			};
 
 		BufferLoadDesc desc = {};
 		desc.ppBuffer = &mVertexBuffer;
@@ -235,20 +218,19 @@ bool Demo::init(GLFWwindow *pWindow)
 	//index buffer
 	{
 		const eastl::vector<uint16_t> indices =
-		{
-			0,  1,  2,
-			0,  2,  3,
-			4,  5,  6,
-			4,  6,  7,
-			8,  9, 10,
-			8, 10, 11,
-			12, 13, 14,
-			12, 14, 15,
-			16, 17, 18,
-			16, 18, 19,
-			20, 21, 22,
-			20, 22, 23
-		};
+			{
+				0, 1, 2,
+				0, 2, 3,
+				4, 5, 6,
+				4, 6, 7,
+				8, 9, 10,
+				8, 10, 11,
+				12, 13, 14,
+				12, 14, 15,
+				16, 17, 18,
+				16, 18, 19,
+				20, 21, 22,
+				20, 22, 23};
 
 		mIndexCount = (uint16_t)indices.size();
 
@@ -266,17 +248,17 @@ bool Demo::init(GLFWwindow *pWindow)
 	{
 		TextureLoadDesc desc = {};
 		desc.ppTexture = &mTexture;
-      //the resource loader will add the filename extension, in this case it will be dds
-      desc.pFileName = "the-forge";
+		//the resource loader will add the filename extension, in this case it will be dds
+		desc.pFileName = "the-forge";
 
 		addResource(&desc, NULL);
 	}
 
-	//sampler 
+	//sampler
 	{
 		//trilinear
-		SamplerDesc desc = { FILTER_LINEAR, FILTER_LINEAR, MIPMAP_MODE_LINEAR,
-							 ADDRESS_MODE_CLAMP_TO_EDGE, ADDRESS_MODE_CLAMP_TO_EDGE, ADDRESS_MODE_CLAMP_TO_EDGE };
+		SamplerDesc desc = {FILTER_LINEAR, FILTER_LINEAR, MIPMAP_MODE_LINEAR,
+							ADDRESS_MODE_CLAMP_TO_EDGE, ADDRESS_MODE_CLAMP_TO_EDGE, ADDRESS_MODE_CLAMP_TO_EDGE};
 
 		addSampler(mRenderer, &desc, &mSampler);
 	}
@@ -284,8 +266,8 @@ bool Demo::init(GLFWwindow *pWindow)
 	//shader
 	{
 		ShaderLoadDesc desc = {};
-		desc.mStages[0] = { "demo.vert", NULL, 0 };
-		desc.mStages[1] = { "demo.frag", NULL, 0 };
+		desc.mStages[0] = {"demo.vert", NULL, 0};
+		desc.mStages[1] = {"demo.frag", NULL, 0};
 		desc.mTarget = (ShaderTarget)mRenderer->mShaderTarget;
 
 		addShader(mRenderer, &desc, &mShader);
@@ -293,7 +275,7 @@ bool Demo::init(GLFWwindow *pWindow)
 
 	//root signature
 	{
-		const char* pStaticSamplers[] = { "samplerState0" };
+		const char *pStaticSamplers[] = {"samplerState0"};
 		RootSignatureDesc desc = {};
 		desc.mStaticSamplerCount = 1;
 		desc.ppStaticSamplerNames = pStaticSamplers;
@@ -310,7 +292,7 @@ bool Demo::init(GLFWwindow *pWindow)
 	//descriptor set
 	{
 		//create the descriptorset
-		DescriptorSetDesc desc = { mRootSignature, DESCRIPTOR_UPDATE_FREQ_NONE, 1 };
+		DescriptorSetDesc desc = {mRootSignature, DESCRIPTOR_UPDATE_FREQ_NONE, 1};
 		addDescriptorSet(mRenderer, &desc, &mDescriptorSet);
 
 		//now update the data
@@ -349,7 +331,7 @@ bool Demo::init(GLFWwindow *pWindow)
 		//pipeline
 		PipelineDesc desc = {};
 		desc.mType = PIPELINE_TYPE_GRAPHICS;
-		GraphicsPipelineDesc& pipelineSettings = desc.mGraphicsDesc;
+		GraphicsPipelineDesc &pipelineSettings = desc.mGraphicsDesc;
 		pipelineSettings.mPrimitiveTopo = PRIMITIVE_TOPO_TRI_LIST;
 		pipelineSettings.mRenderTargetCount = 1;
 		pipelineSettings.pDepthState = &depthStateDesc;
@@ -376,7 +358,6 @@ bool Demo::init(GLFWwindow *pWindow)
 		mGuiWindow->AddWidget(CheckboxWidget("V-Sync", &mVSyncEnabled));
 		mGuiWindow->AddWidget(SliderFloatWidget("Rotation Speed", &mRotationSpeed, 0.0f, 1.0f, 0.1f));
 	}
-
 
 	//matrices
 	const float aspect = (float)mFbWidth / (float)mFbHeight;
@@ -414,7 +395,7 @@ void Demo::onSize(const int32_t width, const int32_t height)
 
 void Demo::onMouseButton(int32_t button, int32_t action)
 {
-	//the-forge only wants to know about left mouse button for the gui 
+	//the-forge only wants to know about left mouse button for the gui
 	if (button != GLFW_MOUSE_BUTTON_1)
 		return;
 
@@ -488,11 +469,11 @@ void Demo::onRender()
 	{
 		double mouseX, mouseY;
 		glfwGetCursorPos(mWindow, &mouseX, &mouseY);
-		mMousePosition = { (float)mouseX, (float)mouseY };
+		mMousePosition = {(float)mouseX, (float)mouseY};
 	}
 	else
 	{
-		mMousePosition = { -1.0f, -1.0f };
+		mMousePosition = {-1.0f, -1.0f};
 	}
 
 	//update UI
@@ -503,16 +484,16 @@ void Demo::onRender()
 	mModelMatrix = glm::rotate(glm::mat4(1.0f), mRotation * glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	mModelMatrix = glm::rotate(mModelMatrix, mRotation * glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	//recalculate world view projection matrix
-	const glm::mat4 worldViewProj = mProjMatrix * mViewMatrix *mModelMatrix;
+	const glm::mat4 worldViewProj = mProjMatrix * mViewMatrix * mModelMatrix;
 
 	//aquire the next swapchain image
-   uint32_t swapchainImageIndex;
+	uint32_t swapchainImageIndex;
 	acquireNextImage(mRenderer, mSwapChain, mImageAcquiredSemaphore, NULL, &swapchainImageIndex);
 
 	//make it easier on our fingers :)
-	RenderTarget* pRenderTarget = mSwapChain->ppRenderTargets[swapchainImageIndex];
-	Semaphore*    pRenderCompleteSemaphore = mRenderCompleteSemaphores[mFrameIndex];
-	Fence*        pRenderCompleteFence = mRenderCompleteFences[mFrameIndex];
+	RenderTarget *pRenderTarget = mSwapChain->ppRenderTargets[swapchainImageIndex];
+	Semaphore *pRenderCompleteSemaphore = mRenderCompleteSemaphores[mFrameIndex];
+	Fence *pRenderCompleteFence = mRenderCompleteFences[mFrameIndex];
 
 	// Stall if CPU is running "Swap Chain Buffer Count" frames ahead of GPU
 	FenceStatus fenceStatus;
@@ -520,22 +501,22 @@ void Demo::onRender()
 	if (fenceStatus == FENCE_STATUS_INCOMPLETE)
 		waitForFences(mRenderer, 1, &pRenderCompleteFence);
 
-   // Reset cmd pool for this frame
-   resetCmdPool(mRenderer, mCmdPools[mFrameIndex]);
+	// Reset cmd pool for this frame
+	resetCmdPool(mRenderer, mCmdPools[mFrameIndex]);
 
 	//command buffer for this frame
-	Cmd* pCmd = mCmds[mFrameIndex];
+	Cmd *pCmd = mCmds[mFrameIndex];
 	beginCmd(pCmd);
 
 	//transition our render target to a state that we can write to
-   RenderTargetBarrier barriers[] = {
-            { pRenderTarget, RESOURCE_STATE_PRESENT, RESOURCE_STATE_RENDER_TARGET },
-   };
-   cmdResourceBarrier(pCmd, 0, NULL, 0, NULL, 1, barriers);
+	RenderTargetBarrier barriers[] = {
+		{pRenderTarget, RESOURCE_STATE_PRESENT, RESOURCE_STATE_RENDER_TARGET},
+	};
+	cmdResourceBarrier(pCmd, 0, NULL, 0, NULL, 1, barriers);
 
 	//bind render and depth target and set the viewport and scissor rectangle
 	mLoadActions.mLoadActionsColor[0] = LOAD_ACTION_CLEAR;
-   mLoadActions.mLoadActionDepth = LOAD_ACTION_CLEAR;
+	mLoadActions.mLoadActionDepth = LOAD_ACTION_CLEAR;
 	cmdBindRenderTargets(pCmd, 1, &pRenderTarget, mDepthBuffer, &mLoadActions, NULL, NULL, -1, -1);
 	cmdSetViewport(pCmd, 0.0f, 0.0f, (float)pRenderTarget->mWidth, (float)pRenderTarget->mHeight, 0.0f, 1.0f);
 	cmdSetScissor(pCmd, 0, 0, pRenderTarget->mWidth, pRenderTarget->mHeight);
@@ -556,7 +537,7 @@ void Demo::onRender()
 
 	//draw UI - we want the swapchain render target bound without the depth buffer
 	mLoadActions.mLoadActionsColor[0] = LOAD_ACTION_LOAD;
-   mLoadActions.mLoadActionDepth = LOAD_ACTION_DONTCARE;
+	mLoadActions.mLoadActionDepth = LOAD_ACTION_DONTCARE;
 	cmdBindRenderTargets(pCmd, 1, &pRenderTarget, NULL, &mLoadActions, NULL, NULL, -1, -1);
 	mAppUI.Gui(mGuiWindow);
 	mAppUI.Draw(pCmd);
@@ -564,7 +545,7 @@ void Demo::onRender()
 	//make sure no render target is bound
 	cmdBindRenderTargets(pCmd, 0, NULL, NULL, NULL, NULL, NULL, -1, -1);
 	//transition render target to a present state
-   barriers[0] = { pRenderTarget, RESOURCE_STATE_RENDER_TARGET, RESOURCE_STATE_PRESENT };
+	barriers[0] = {pRenderTarget, RESOURCE_STATE_RENDER_TARGET, RESOURCE_STATE_PRESENT};
 	cmdResourceBarrier(pCmd, 0, NULL, 0, NULL, 1, barriers);
 
 	//end the command buffer
@@ -597,5 +578,5 @@ void Demo::onRender()
 		toggleVSync(mRenderer, &mSwapChain);
 	}
 
-   mFrameIndex = (mFrameIndex + 1) % gImageCount;
+	mFrameIndex = (mFrameIndex + 1) % gImageCount;
 }

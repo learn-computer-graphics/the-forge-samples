@@ -1,23 +1,96 @@
-# The-Forge GLFW Demo
-Unofficial simple demo showing how to use The-Forge with a 'bring your own' windowing, input, application loop, maths lib and CMake build system.
+# The Forge Samples
 
-## The-Forge links
-* [Homepage](https://theforge.dev/)
-* [Source](https://github.com/ConfettiFX/The-Forge)
+Unofficial implementation of multiple rendering techniques using [The Forge](https://github.com/ConfettiFX/The-Forge) rendering engine. Based on the repository [the-forge-glfw](https://github.com/rextimmy/the-forge-glfw) by Tim Barnes for ease of use.
 
-# Supported OS for this demo
-* Windows 10
-* Linux (Ubuntu 18.04 LTS)
+Follow step by step tutorials for these samples on [learn-computer-graphics](https://learn-computer-graphics.com/rendering-techniques/).
 
-# Notes
-* Sorry i don't have access to other devices/OS at this stage.
-* 64bit OS required.
-* Linux build will likely work ok on later versions than listed. Tested with Qt Creator and GCC 7.5 on Linux Mint 19.3.
-* There is an example of using the shader translator to convert source shader files to the various back ends, check the bin/shaders/src directory. Requires windows.
-* LunarG Vulkan SDK 1.1.x is required when compiling with Vulkan. Version 1.2.x of the SDK is not supported at this stage. [Vulkan SDK](https://vulkan.lunarg.com/sdk/home)
-* VS 2017 is the only 'official' VS version supported, it will likely work with VS 2019(untested) though.
-* There is a GEN_VS.bat file you can run on windows to save running CMake yourself. It will output the build files into the 'build' directory. Genereates a VS 2017 solution.
-* If you are integrating The-Forge into an existing engine, check the 'src/interfaces' directory to see what is required. These implementations you would want to point to your own engine implementations of the functionality provided there. For example: it is common for and engine to already have a file system implementation, so you would implement the various file system calls using your engine code.
+## 🚩 Table of Contents
 
-![Demo Screenshot](screenshots/demo_screenshot.png) 
+<details><summary>🏗️ Show Build steps</summary>
+<p>
+
+* Prerequisites
+  * [Linux](#Linux)
+  * [Windows](#Windows)
+
+* Build and Run
+  * [Option 1 : CLI](#Option-1:-CLI)
+  * [Option 2 : Visual Studio](#Option-2:-Visual-Studio)
+  * [Option 3 : VSCode](#Option-3:-VSCode)
+
+</p>
+</details>
+
+<details><summary>🧩 Show Samples</summary>
+<p>
+
+* Getting Started
+  * [Hello Triangle](#Hello-Triangle)
+  * [Moving Cube](#Moving-Cube)
+
+</p>
+</details>
+
+## Build steps
+
+### Prerequisites
+
+You need to install [CMake](https://cmake.org/) to build the project, and a C++ compiler which handles C++14.
+
+#### Linux
+
+```
+sudo apt-get install build-essential cmake
+```
+
+#### Windows
+
+To get the MSVC compiler, you need to install [Visual Studio](https://visualstudio.microsoft.com/) (and not VSCode), and select C++ development during installation.
+
+### Build and Run
+
+You can handle the `CMakeLists.txt` in any way you like, here's some way to use it :
+
+#### `Option 1: CLI`
+
+If you are on windows you can run the `GEN_CMAKE.bat` file. Else you can also open a command line and run the following commands :
+
+```bash
+mkdir build
+cd build
+cmake .. -A x64 -DD3D12=OFF -DVULKAN=ON
+make
+```
+
+To run the project, go to the build folder and run the executable fo your wanted sample
+
+#### `Option 2: Visual Studio`
+
+Open this folder with the `CMake...` option in file->open on Visual Studio. Press `f7` to build and `f5` to run the project.
+
+#### `Option 3: VSCode`
+
+Use the `CMakeTools` plugin, build with `f7` then run with `f5` (but be careful to be on the right platform, there is a launch file for windows and for linux).
+
+**Warning** : Currently there is a link error when building on windows with vscode
+
+## Samples
+
+### Getting Started
+
+#### Hello Triangle 
+
+This sample show the most basic example with a triangle rendered on screen
+
+- [Tutorial](http://rendering-techniques.learn-computer-graphics.com/doc/getting-started/triangle.html)
+- [Source](src/main.cpp)
+
+![triangle](https://github.com/DiligentGraphics/DiligentSamples/raw/master/Tutorials/Tutorial01_HelloTriangle/Screenshot.png)
+
+#### Moving Cube
+
+- [Tutorial](http://rendering-techniques.learn-computer-graphics.com/doc/getting-started/moving-cube.html)
+- [Source](src/main.cpp)
+
+![cube](https://github.com/DiligentGraphics/DiligentSamples/raw/master/Tutorials/Tutorial02_Cube/Animation_Large.gif)
 
