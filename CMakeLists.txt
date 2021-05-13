@@ -33,7 +33,8 @@ add_subdirectory("${DEMO_DIR}/external/glfw")
 add_subdirectory("${DEMO_DIR}/external/the-forge")
 
 #Demo source
-file(GLOB DEMO_SRC "${DEMO_DIR}/src/*.*")
+file(GLOB_RECURSE GETTING_STARTED_SRC "${DEMO_DIR}/src/getting-started/*")
+set(DEMO_SRC "src/main.cpp" ${GETTING_STARTED_SRC})
 
 #the-forge implementation files
 if(WIN32)

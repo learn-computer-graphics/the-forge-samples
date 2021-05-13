@@ -14,9 +14,9 @@ Follow step by step tutorials for these samples on [learn-computer-graphics](htt
   * [Windows](#Windows)
 
 * Build and Run
-  * [Option 1 : CLI](#Option-1:-CLI)
-  * [Option 2 : Visual Studio](#Option-2:-Visual-Studio)
-  * [Option 3 : VSCode](#Option-3:-VSCode)
+  * [Option 1 : CLI](#Option-1-CLI)
+  * [Option 2 : Visual Studio](#Option-2-Visual-Studio)
+  * [Option 3 : VSCode](#Option-3-VSCode)
 
 </p>
 </details>
@@ -25,8 +25,8 @@ Follow step by step tutorials for these samples on [learn-computer-graphics](htt
 <p>
 
 * Getting Started
-  * [Hello Triangle](#Hello-Triangle)
-  * [Moving Cube](#Moving-Cube)
+  * [Hello Triangle](#Hello-Triangle-source)
+  * [Moving Cube](#Moving-Cube-source)
 
 </p>
 </details>
@@ -78,19 +78,14 @@ Use the `CMakeTools` plugin, build with `f7` then run with `f5` (but be careful 
 
 ### Getting Started
 
-#### Hello Triangle 
+#### [Hello Triangle](http://rendering-techniques.learn-computer-graphics.com/doc/getting-started/triangle.html) [(source)](src/main.cpp)
 
 This sample show the most basic example with a triangle rendered on screen
 
-- [Tutorial](http://rendering-techniques.learn-computer-graphics.com/doc/getting-started/triangle.html)
-- [Source](src/main.cpp)
+<img src="https://github.com/DiligentGraphics/DiligentSamples/raw/master/Tutorials/Tutorial01_HelloTriangle/Screenshot.png" width="50px"/>
 
-![triangle](https://github.com/DiligentGraphics/DiligentSamples/raw/master/Tutorials/Tutorial01_HelloTriangle/Screenshot.png)
+#### [Moving Cube](http://rendering-techniques.learn-computer-graphics.com/doc/getting-started/moving-cube.html) [(source)](src/main.cpp)
 
-#### Moving Cube
+This tutorial show how to render a rotating 3D object
 
-- [Tutorial](http://rendering-techniques.learn-computer-graphics.com/doc/getting-started/moving-cube.html)
-- [Source](src/main.cpp)
-
-![cube](https://github.com/DiligentGraphics/DiligentSamples/raw/master/Tutorials/Tutorial02_Cube/Animation_Large.gif)
-
+<img src="https://github.com/DiligentGraphics/DiligentSamples/raw/master/Tutorials/Tutorial02_Cube/Animation_Large.gif" width="50px"/>

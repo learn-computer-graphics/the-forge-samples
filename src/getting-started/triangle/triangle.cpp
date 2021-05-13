@@ -1,4 +1,5 @@
-#include "demo.h"
+#include "triangle.h"
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
@@ -11,7 +12,9 @@
 extern bool MemAllocInit(const char *name);
 extern void MemAllocExit();
 
-Demo::~Demo()
+Triangle::Triangle() {}
+
+Triangle::~Triangle()
 {
 
 	if (mRenderer != NULL)
@@ -53,7 +56,7 @@ Demo::~Demo()
 	MemAllocExit();
 }
 
-bool Demo::init(GLFWwindow *pWindow)
+bool Triangle::init(GLFWwindow *pWindow)
 {
 	//store the window pointer
 	mWindow = pWindow;
@@ -367,7 +370,7 @@ bool Demo::init(GLFWwindow *pWindow)
 	return true;
 }
 
-void Demo::onSize(const int32_t width, const int32_t height)
+void Triangle::onSize(const int32_t width, const int32_t height)
 {
 	//check if we even need to resize
 	if (width == mFbWidth && height == mFbHeight)
@@ -393,7 +396,7 @@ void Demo::onSize(const int32_t width, const int32_t height)
 	mProjMatrix = glm::perspective(45.0f, aspect, 0.1f, 100.00f);
 }
 
-void Demo::onMouseButton(int32_t button, int32_t action)
+void Triangle::onMouseButton(int32_t button, int32_t action)
 {
 	//the-forge only wants to know about left mouse button for the gui
 	if (button != GLFW_MOUSE_BUTTON_1)
@@ -407,7 +410,7 @@ void Demo::onMouseButton(int32_t button, int32_t action)
 	mAppUI.OnButton(InputBindings::BUTTON_SOUTH, buttonPressed, &mMousePosition);
 }
 
-bool Demo::createSwapchainResources()
+bool Triangle::createSwapchainResources()
 {
 	WindowHandle handle;
 #ifdef _WIN32
@@ -459,7 +462,7 @@ bool Demo::createSwapchainResources()
 	return true;
 }
 
-void Demo::onRender()
+void Triangle::onRender()
 {
 	//delta time
 	const float deltaTime = mTimer.GetMSec(true) / 1000.0f;

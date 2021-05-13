@@ -1,4 +1,5 @@
-#include "demo.h"
+#include "getting-started/triangle/triangle.h"
+#include "sample.h"
 #include <GLFW/glfw3.h>
 
 //GLFW callbacks
@@ -9,16 +10,16 @@ void errorCallback(int, const char *description)
 
 void framebufferResizeCallback(GLFWwindow *pWin, int w, int h)
 {
-	Demo *pDemo = static_cast<Demo *>(glfwGetWindowUserPointer(pWin));
-	assert(pDemo);
-	pDemo->onSize(w, h);
+	Sample *pSample = static_cast<Sample*>(glfwGetWindowUserPointer(pWin));
+	assert(pSample);
+	pSample->onSize(w, h);
 }
 
 void mouseButtonCallback(GLFWwindow *pWin, int button, int action, int)
 {
-	Demo *pDemo = static_cast<Demo *>(glfwGetWindowUserPointer(pWin));
-	assert(pDemo);
-	pDemo->onMouseButton(button, action);
+	Sample *pSample = static_cast<Sample*>(glfwGetWindowUserPointer(pWin));
+	assert(pSample);
+	pSample->onMouseButton(button, action);
 }
 
 //Main
@@ -45,16 +46,16 @@ int main(int argc, const char **argv)
 	}
 
 	//Demo class
-	Demo demo;
+	Triangle triangle;
 
-	if (!demo.init(pWindow))
+	if (!triangle.init(pWindow))
 	{
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
 
 	//set the demo class as the user pointer
-	glfwSetWindowUserPointer(pWindow, &demo);
+	glfwSetWindowUserPointer(pWindow, &triangle);
 	//framebuffer size callback
 	glfwSetFramebufferSizeCallback(pWindow, framebufferResizeCallback);
 	//mouse button callback
@@ -66,7 +67,7 @@ int main(int argc, const char **argv)
 		glfwPollEvents();
 
 		//render
-		demo.onRender();
+		triangle.onRender();
 	}
 
 	glfwDestroyWindow(pWindow);

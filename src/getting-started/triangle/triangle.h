@@ -5,6 +5,8 @@
 #include <Middleware_3/UI/AppUI.h>
 #include <glm/glm.hpp>
 
+#include "sample.h"
+
 //image count
 const uint32_t gImageCount = 3;
 
@@ -21,15 +23,17 @@ struct Vertex
 		: pos(x, y, z), texCoord(u, v) {}
 };
 
-class Demo
+class Triangle : public Sample
 {
 public:
-	~Demo();
-	bool init(GLFWwindow *pWindow);
-	void onSize(const int32_t width, const int32_t height);
-	void onMouseButton(int32_t button, int32_t action);
-	void onRender();
-	const char *getName() { return "ForgeDemo"; }
+	Triangle();
+	virtual ~Triangle();
+
+	virtual bool init(GLFWwindow *pWindow) override;
+	virtual void onSize(const int32_t width, const int32_t height) override;
+	virtual void onMouseButton(int32_t button, int32_t action) override;
+	virtual void onRender() override;
+	virtual const char *getName() override { return "ForgeDemo"; }
 
 private:
 	bool createSwapchainResources();
