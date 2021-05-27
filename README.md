@@ -40,7 +40,7 @@ You need to install [CMake](https://cmake.org/) to build the project, and a C++ 
 #### Linux
 
 ```
-sudo apt-get install build-essential cmake
+sudo apt-get install build-essential libreadline-dev glslang-tools
 ```
 
 #### Windows
